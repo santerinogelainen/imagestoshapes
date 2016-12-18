@@ -1,0 +1,137 @@
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@-moz-keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@-webkit-keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@-o-keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+html {
+  background-image: url("../img/background.png");
+  background-size: 25px 25px;
+}
+body {
+  background-color: rgba(255, 255, 255, 1);
+  min-height: 100vh;
+}
+
+form {
+  margin-top: 20px !important;
+}
+.container {
+  background-color: white;
+  margin-top: 50px;
+}
+
+.btn-primary, .btn-primary.focus {
+  background-color: black;
+  color: white;
+}
+
+.btn-primary {
+  border-color: black;
+}
+
+.btn-primary:active, .btn-primary.active, .btn-primary.active.focus, .btn-primary:hover, .btn-primary.active:hover, .btn-primary:active:hover {
+  background-color: white;
+  color: black;
+}
+
+.form-group {
+  margin-top: 20px;
+  padding: 10px;
+}
+
+input.hiddenrange, label.hiddenrange {
+  display: none;
+}
+
+.output {
+  width: 100%;
+}
+
+.triangle_position {
+  display: none;
+}
+
+.position_img {
+  width: 40px;
+  height: 40px;
+  padding: 5px;
+  float: left;
+}
+
+.triangle_position table td {
+  width: 40px;
+  height: 40px !important;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  line-height: 0;
+}
+
+.triangle_position table {
+  border-spacing: 0;
+}
+
+.triangle_position input[type=radio] {
+  visibility: hidden;
+  position: absolute;
+}
+
+.random_position_header {
+  display: inline-block;
+  line-height: 30px;
+  padding: 0 5px 0 5px;
+}
+
+.triangle_position img, .triangle_position span {
+  border: 2px solid transparent;
+}
+
+.triangle_position img:hover, .triangle_position span:hover {
+  border: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+.triangle_position table label input:checked + img, .triangle_position table label input:checked + span {
+  border:2px solid red;
+}
+
+.enableshapes {
+  display: none;
+}
+
+.finalimage {
+  max-width: 100%;
+  display: block;
+}
+
+.results {
+  padding: 10px;
+}
+
+.loader {
+  display: none;
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid black;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+.github {
+  height: 20px;
+}
