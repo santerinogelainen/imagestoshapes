@@ -20,7 +20,7 @@ function get_browser_name($user_agent)
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Image to Shapes</title>
+    <title>Images to Shapes</title>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/bootstrap-colorpicker.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/styles.css"/>
