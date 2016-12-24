@@ -1,119 +1,138 @@
 <?php
 
+if (!isset($_POST)) {
+  echo "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Error! Post not set!</div>";
+  exit;
+}
+
+if (!isset($_FILES)) {
+  echo "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Error! File not set!</div>";
+  exit;
+}
+
+//read post and file
 $settings = $_POST;
 $file = $_FILES["file"];
 
+//convert file byte amount to megabytes
 $bytes = $file["size"];
 $megabytes = $bytes / 1048576;
 
+//we don't want some dumb fuck to overload our server by uploading a 1tb file
 if ($megabytes > 5) {
   echo "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>File can't be more than 5Mb!</div>";
   exit;
 } else {
 
+//scary but w/e
 ini_set('memory_limit', '-1');
+
+//check that it is indeed an image
 if (@$size = getimagesize($file["tmp_name"])) {
+
+  //again we don't want someone to overload the server by uploading a 100000x100000 image with 1x1 spacing between shapes
+  if ($size[0] >  5000 || $size[1] > 5000) {
+    echo "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Image height/width can't go over 5000px!</div>";
+    exit;
+  }
+
+  //load the image to a PHP variable
   if ($size["mime"] == "image/jpeg") {
     $image = imagecreatefromjpeg($file["tmp_name"]);
   } else if ($size["mime"] == "image/png") {
     $image = imagecreatefrompng($file["tmp_name"]);
   }
+
+  //easier to remember and read
   $width = $size[0];
   $height = $size[1];
+
+  //this is going to be the result image
   $finalimage = imagecreatetruecolor($width, $height);
+
+  //get the rgb(a) value of the background
+  //json decode because javascript formdata does not accept arrays, which means i had to encode it to a string, dirty technique
   $rgb = json_decode($settings["background"]);
+
+  //now we check if alpha is set in the rgb values and allocate the colors
   if (isset($rgb[3])) {
   $bg = imagecolorallocatealpha($finalimage, $rgb[0], $rgb[1], $rgb[2], ($rgb[3] * 127)); //alpha is a number from 0-127, rgb[3] is a decimal between 0 and 1 (or 0/1)
   } else {
   $bg = imagecolorallocate($finalimage, $rgb[0], $rgb[1], $rgb[2]);
   }
+
+  //fill the result image with the background color
   imagefill($finalimage, 0, 0, $bg);
+
+  //loop through the pixels vertically
   for ($y = 1; $height >= $y; $y+=$settings["yspacing"]) {
+    //then horizontally (it is like reading a book, move from left to right then down)
     for ($x = 1; $width >= $x; $x+=$settings["xspacing"]) {
 
+      //get the size of the shape
       if (isset($settings["minsize"])) {
         $size = rand($settings["minsize"], $settings["maxsize"]);
       } else {
         $size = $settings["size"];
       }
 
+      //oh boy
+      //$settings["offset"] = max possible offset
+      //if user has set offset to the shape position
       if ($settings["xoffset"] !== 0) {
+
+        //randomize offset
         $offsetx = rand(0, $settings["xoffset"]);
+
+        //half of the max possible offset
         $half = $settings["xoffset"] / 2;
 
+        //if the random number is more than half of the max possible offset
+        //this is because we want the offset to either be negative of positive
+        //rand() function is kinda shit because you cant do stuff like between -10 and 10
+        //without it looking like a spaghetti mess
+        //middlex is the x position in the middle of the shape
         if ($offsetx > $half) {
-          $middlex = $x - $offsetx - $settings["xoffset"];
+          $middlex = $x + $offsetx - $settings["xoffset"]; //negative offset
         } else {
-          $middlex = $x - $offsetx;
-        }
-
-        if ($middlex < 0) {
-          $middlex = 1;
-        }
-
-        if ($middlex >= $width) {
-          $middlex = $width;
-        }
-
-        if ($middlex < ($size / 2)) {
-          $topleftx = 0;
-        } else {
-          $topleftx = $middlex - ($size / 2);
-        }
-
-        if ($middlex > ($width - ($size / 2))) {
-          $bottomrightx = $width;
-        } else {
-          $bottomrightx = $middlex + ($size / 2);
+          $middlex = $x + $offsetx; //positive offset
         }
 
       } else {
+        //if offset is 0 by the user
         $middlex = $x;
       }
 
+      //same thing as previously but for y
       if ($settings["yoffset"] !== 0) {
         $offsety = rand(0, $settings["yoffset"]);
         $half = $settings["yoffset"] / 2;
 
         if ($offsety > $half) {
-          $middley = $y - $offsety - $settings["yoffset"];
+          $middley = $y + $offsety - $settings["yoffset"];
         } else {
-          $middley = $y - $offsety;
-        }
-
-        if ($middley < 0) {
-          $middley = 1;
-        }
-
-        if ($middley >= $height) {
-          $middley = $height;
-        }
-
-        if ($middley < ($size / 2)) {
-          $toplefty = 0;
-        } else {
-          $toplefty = $middley - ($size / 2);
-        }
-
-        if ($middley > ($height - ($size / 2))) {
-          $bottomrighty = $height;
-        } else {
-          $bottomrighty = $middley + ($size / 2);
+          $middley = $y + $offsety;
         }
 
       } else {
         $middley = $y;
       }
 
+      //now we check the place we pick the color from
       if ($settings["colorfrom"] == "original") {
-        $index = imagecolorat($image, $x , $y);
+        $index = imagecolorat($image, $x , $y); //from the original position
       } else {
-        $index = imagecolorat($image, $middlex , $middley);
+        $index = imagecolorat($image, $middlex , $middley); //from the position after offset
       }
+
+      //get the rbg(a) value of the picked color
       $color = imagecolorsforindex($finalimage, $index);
+
+      //allocate it
       $shapeColor = imagecolorallocatealpha($finalimage, $color["red"], $color["green"], $color["blue"], $color["alpha"]);
 
 
+      //randomize shape if mixed is selected
       if ($settings["shape"] == "mixed") {
         $allshapes = json_decode($settings["enabledshapes"]);
         $shape = $allshapes[array_rand($allshapes)];
@@ -121,17 +140,37 @@ if (@$size = getimagesize($file["tmp_name"])) {
         $shape = $settings["shape"];
       }
 
+      //if shape is square
       if ($shape == "square") {
+        //count top left aand bottom right from the middle position
+        //x
+        $topleftx = $middlex - ($size / 2);
+        $bottomrightx = $middlex + ($size / 2);
+        //y
+        $toplefty = $middley - ($size / 2);
+        $bottomrighty = $middley + ($size / 2);
+
+        //draw the square
         imagefilledrectangle($finalimage, $topleftx, $toplefty, $bottomrightx, $bottomrighty, $shapeColor);
+
       } else if ($shape == "circle") {
+
+        //draw the circle
         imagefilledellipse($finalimage, $middlex, $middley, $size, $size, $shapeColor);
+
       } else if ($shape == "triangle") {
+
+        //randomize triangle position
         if ($settings["triangleposition"] == "random") {
           $triangleposition = rand(0, 11);
         } else {
           $triangleposition = $settings["triangleposition"];
         }
+
+        //get the vertices of the triangle
         $vertices = triangleVertices($triangleposition, $middlex, $middley, $size);
+
+        //draw the triangle
         imagefilledpolygon($finalimage, $vertices, 3, $shapeColor);
       } else {
         echo "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Error! Unknown shape type: " . $shape . "</div>";
@@ -140,20 +179,18 @@ if (@$size = getimagesize($file["tmp_name"])) {
     }
   }
 
-  // output the picture
+  //tell php that the image contains an alpha channel
   imagesavealpha($finalimage, TRUE);
-  //imagepng($finalimage, "img/temp/" . $settings["filename"] . ".png");
 
+  //a wierd way to turn the image to base 64 without saving it
   ob_start ();
-
   imagepng ($finalimage);
   $image_data = ob_get_contents ();
-
   ob_end_clean ();
-
   $base64 = base64_encode ($image_data);
 
-  echo "<h2>Result</h2><img class='finalimage' src='data:image/png;base64," . $base64 . "' /><a href='data:image/png;base64," . $base64 . "' download='your_result.png'><br /><button type='button' class='btn btn-success download-button'>Download</button></a>";
+  //display the final image
+  echo "<div class='alert alert-info'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><h2>Result</h2><img class='finalimage' src='data:image/png;base64," . $base64 . "' /><a href='data:image/png;base64," . $base64 . "' download='your_result.png'><br /><button type='button' class='btn btn-success download-button'>Download</button></a></div>";
 
 } else {
   echo "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Not an image! Only .png and .jpeg allowed!</div>";
@@ -195,11 +232,6 @@ function triangleVertices($position, $x, $y, $size, $width = 0, $height = 0) {
   $left = array("x" => ($x - $half), "y" => $y);
   $topleft = array("x" => ($x - $half), "y" => ($y - $half));
 
-  //TO DO:
-  //add another triangle version see:
-  //xhbvmzx5yh.png  short version
-  //and
-  //zb7msmb1j0.png  tall version
   switch($position) {
     case 0: //top
       $vertices = array(

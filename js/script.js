@@ -1,13 +1,12 @@
 $(function() {
   $('#cp4').colorpicker({
-      color: '#ffffff',
       format: 'rgba'
   });
 });
 
 
 $('#cp4').on('changeColor', function(e) {
-    $('body')[0].style.backgroundColor = "hsla(" + (e.color.value.h * 360) + ", " + (e.color.value.s * 100) + "%, " + (e.color.value.b * 100) + "%, " + e.color.value.a + ")";
+    $('body')[0].style.backgroundColor = $(".colorpicker-color div").css("background-color");
 });
 
 $("#heightspacing, #widthspacing").on("input change", function() {
@@ -75,6 +74,11 @@ $('.enableshapes label').click(function(){
 
 $("#submit").click(function(){
 
+  if ($(".timeout").html() !== "") {
+    alert("Please wait at least 15 seconds before creating a new image.");
+    return;
+  }
+
   $(".file_selection").css("border", "none");
   $(".enableshapes").css("border", "none");
 
@@ -82,6 +86,7 @@ $("#submit").click(function(){
   var shape = $('input[name=shape]:checked').val();
   var bgcss = $('body').css("background-color");
   var rgb = bgcss.replace(/^rgba?\(|\s+|\)$/g,'').split(',');
+  console.log(rgb);
   var xspacing = $("#widthspacing").val();
   var yspacing = $("#heightspacing").val();
   var maxoffsetx = $("#maxoffsetx").val();
@@ -123,7 +128,7 @@ $("#submit").click(function(){
   if ($('.showhidden').is(':checked')) {
     var minsize = $("#minsize").val();
     var maxsize = $("#maxsize").val();
-    if (minsize > maxsize) {
+    if (parseInt(minsize) > parseInt(maxsize)) {
       alert("Min size cannot be more than (or equal to) max size!");
       return
     }
@@ -145,6 +150,17 @@ $("#submit").click(function(){
          success : function(data) {
             $(".loader").hide();
             $(".results").append(data);
+
+            var seconds = 15;
+
+            var timeout = setInterval(function(){
+              $(".timeout").html("(" + seconds + ")");
+              if (seconds === 0) {
+                clearInterval(timeout);
+                $(".timeout").html("");
+              }
+              seconds--;
+            }, 1000);
          }
   });
 

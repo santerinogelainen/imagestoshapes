@@ -1,3 +1,22 @@
+<?php
+
+//http://php.net/manual/en/function.get-browser.php
+//see comments
+
+function get_browser_name($user_agent)
+{
+    if (strpos($user_agent, 'Opera') || strpos($user_agent, 'OPR/')) return 'Opera';
+    elseif (strpos($user_agent, 'Edge')) return 'Edge';
+    elseif (strpos($user_agent, 'Chrome')) return 'Chrome';
+    elseif (strpos($user_agent, 'Safari')) return 'Safari';
+    elseif (strpos($user_agent, 'Firefox')) return 'Firefox';
+    elseif (strpos($user_agent, 'MSIE') || strpos($user_agent, 'Trident/7')) return 'Internet Explorer';
+
+    return 'Other';
+}
+
+?>
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -17,10 +36,33 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Information</h4>
           </div>
           <div class="modal-body">
-            <p>TO DO</p>
+            <h2>Images</h2>
+            <p>
+              Your images only go through the server but they are not saved anywhere. Neither are the result images. Save your results before leaving the page or closing the result.
+            </p>
+            <h2>How does it work?</h2>
+            <p>
+              <a href="https://github.com/santerinogelainen/imagestoshapes">Github repo</a><br /><br />
+
+              Basically the image goes through the server, PHP loops through the image and adds shapes. After that it will base64 encode the result image and show it to the user.
+            </p>
+            <h2>Libraries used:</h2>
+            <ul>
+              <li>
+                <a href="https://jquery.com/">JQuery</a>
+              </li>
+              <li>
+                <a href="http://getbootstrap.com/">Bootstrap</a>
+              </li>
+              <li>
+                <a href="https://itsjavi.com/bootstrap-colorpicker/">Bootstrap Colorpicker</a>
+              </li>
+              <li>
+                <a href="http://php.net/manual/en/book.image.php">PHP GD</a>
+              </li>
+            </ul>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -31,19 +73,34 @@
     <nav class='nav navbar-inverse navbar-fixed-top'>
       <div class='container-fluid'>
         <div class='navbar-header'>
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+          </button>
           <a class="navbar-brand" href="/">Santeri Nogelainen</a>
         </div>
-        <ul class="nav navbar-nav">
-          <li><a href="#" data-toggle="modal" data-target="#infomodal">Information</a></li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li><a target="_blank" href="https://github.com/santerinogelainen/imagestoshapes"><img class="github" src="img/GitHub_Logo_white.png" /></a></li>
-        </ul>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="#" data-toggle="modal" data-target="#infomodal">Information</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a target="_blank" href="https://github.com/santerinogelainen/imagestoshapes"><img class="github" src="img/GitHub_Logo_white.png" /></a></li>
+          </ul>
+        </div>
       </div>
     </nav>
     <div class="container">
       <div class="row">
-        <div class="col-sm-12 col-lg-12 results"><div class="loader"></div></div>
+        <div class="col-sm-12 col-lg-12 results">
+            <?php
+              if (get_browser_name($_SERVER['HTTP_USER_AGENT']) == "Firefox" || get_browser_name($_SERVER['HTTP_USER_AGENT']) == "Chrome") {} else {
+                echo "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Unsupported browser detected! This may not work properly with your browser. Please consider using Chrome or Firefox.</div>";
+              }
+            ?>
+          <div class="loader"></div>
+        </div>
         <form class="col-sm-12 col-lg-12">
           <div class="form-group btn-group shapes" data-toggle="buttons">
             <label class="btn btn-primary active">
@@ -175,7 +232,7 @@
               Final position (after offset, etc.): <input type="radio" name="colorfrom" value="final" />
           </div>
           <div class="form-group">
-            <a href="#" class="btn btn-default" id="submit">Generate Image</a>
+            <a href="#" class="btn btn-default" id="submit">Generate Image <span class="timeout"></span></a>
           </div>
         </form>
       </div>
