@@ -86,7 +86,6 @@ $("#submit").click(function(){
   var shape = $('input[name=shape]:checked').val();
   var bgcss = $('body').css("background-color");
   var rgb = bgcss.replace(/^rgba?\(|\s+|\)$/g,'').split(',');
-  console.log(rgb);
   var xspacing = $("#widthspacing").val();
   var yspacing = $("#heightspacing").val();
   var maxoffsetx = $("#maxoffsetx").val();
