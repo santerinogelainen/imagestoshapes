@@ -10,10 +10,39 @@ if (!isset($_FILES)) {
   exit;
 }
 
+//see http://php.net/manual/en/features.file-upload.errors.php
+switch($_FILES["file"]["error"]) {
+case 1:
+  echo "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>The uploaded file exceeds the max upload size set by the server (" . ini_get('upload_max_filesize') . ").</div>";
+  exit;
+case 2:
+  echo "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>The uploaded file exceeds the max upload size set by the HTML form.</div>";
+  exit;
+case 3:
+  echo "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>The uploaded file was only partially uploaded.</div>";
+  exit;
+case 4:
+  echo "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>No file was uploaded.</div>";
+  exit;
+case 6:
+  echo "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Missing a temporary folder. I don't know how this happened. Please contact me santeri.nogelainen@gmail.com.</div>";
+  exit;
+case 7:
+  echo "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Failed to write file to disk. Probably something to do with folder permissions. Please contact me santeri.nogelainen@gmail.com.</div>";
+  exit;
+case 8:
+  echo "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>A PHP extension stopped the file upload.</div>";
+  exit;
+default:
+//do nothing
+  break;
+}
+
 //read post and file
 $settings = $_POST;
 $file = $_FILES["file"];
 
+//this is here just to make sure
 //convert file byte amount to megabytes
 $bytes = $file["size"];
 $megabytes = $bytes / 1048576;
@@ -32,7 +61,7 @@ if (@$size = getimagesize($file["tmp_name"])) {
 
   //again we don't want someone to overload the server by uploading a 100000x100000 image with 1x1 spacing between shapes
   if ($size[0] >  5000 || $size[1] > 5000) {
-    echo "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Image height/width can't go over 5000px!</div>";
+    echo "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Image height/width can't go over 5000px! Please crop, resample or resize your image.</div>";
     exit;
   }
 
@@ -41,6 +70,9 @@ if (@$size = getimagesize($file["tmp_name"])) {
     $image = imagecreatefromjpeg($file["tmp_name"]);
   } else if ($size["mime"] == "image/png") {
     $image = imagecreatefrompng($file["tmp_name"]);
+  } else {
+    echo "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Only .png and .jpg allowed!</div>";
+    exit;
   }
 
   //easier to remember and read
@@ -65,9 +97,9 @@ if (@$size = getimagesize($file["tmp_name"])) {
   imagefill($finalimage, 0, 0, $bg);
 
   //loop through the pixels vertically
-  for ($y = 1; $height >= $y; $y+=$settings["yspacing"]) {
+  for ($y = 1; ($height - 1) > $y; $y+=$settings["yspacing"]) {
     //then horizontally (it is like reading a book, move from left to right then down)
-    for ($x = 1; $width >= $x; $x+=$settings["xspacing"]) {
+    for ($x = 1; ($width - 1) > $x; $x+=$settings["xspacing"]) {
 
       //get the size of the shape
       if (isset($settings["minsize"])) {
@@ -193,7 +225,7 @@ if (@$size = getimagesize($file["tmp_name"])) {
   echo "<div class='alert alert-info'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><h2>Result</h2><img class='finalimage' src='data:image/png;base64," . $base64 . "' /><a href='data:image/png;base64," . $base64 . "' download='your_result.png'><br /><button type='button' class='btn btn-success download-button'>Download</button></a></div>";
 
 } else {
-  echo "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Not an image! Only .png and .jpeg allowed!</div>";
+  echo "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Not an image!</div>";
   exit;
 }
 }

@@ -101,14 +101,20 @@ $("#submit").click(function(){
     if (enabledshapes.length < 2) {
       $(".enableshapes").css("border", "5px solid red");
       alert("You need to select at least two shapes in 'Enable / disable shapes'! If you want to select only one shape, use the buttons on top of the page.");
-      return
+      return;
     }
   }
 
   if ($('#choose_file')[0].files[0] === undefined) {
     $(".file_selection").css("border", "5px solid red");
     alert("Please select a file.");
-    return
+    return;
+  }
+
+  if ($('#choose_file')[0].files[0].size > 5000000) {
+    $(".file_selection").css("border", "5px solid red");
+    alert("File can't be more than 5Mb");
+    return;
   }
 
   var formData = new FormData();

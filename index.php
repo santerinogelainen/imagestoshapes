@@ -21,6 +21,11 @@ function get_browser_name($user_agent)
 <html>
   <head>
     <title>Images to Shapes</title>
+    <meta name="theme-color" content="#000000" />
+    <meta name="msapplication-TileColor" content="#000000">
+    <meta name="msapplication-navbutton-color" content="#000000">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#000000">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/bootstrap-colorpicker.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/styles.css"/>
@@ -63,6 +68,10 @@ function get_browser_name($user_agent)
                 <a href="http://php.net/manual/en/book.image.php">PHP GD</a>
               </li>
             </ul>
+            <h2>Sample size</h2>
+            <p>
+              The sample size of the colorpicker is always 1px. PHP GD does not allow bigger sample sizes by default but i might code a function that calculates the color from a bigger area in the future.
+            </p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -238,5 +247,8 @@ function get_browser_name($user_agent)
       </div>
     </div>
     <script src="js/script.js"></script>
+    <?php
+      include "analyticstracking.php";
+    ?>
   </body>
 </html>
