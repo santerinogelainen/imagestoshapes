@@ -1,6 +1,6 @@
 #Images To Shapes
 
-This is just a simple web application that transforms images to different shapes. Live version at https://nogelai.net/projects/imagestoshapes .
+This is just a simple web application that transforms images to different shapes. Live version at https://old.nogelai.net/projects/imagestoshapes .
 
 This project uses:
 - [Bootstrap](http://getbootstrap.com/)
